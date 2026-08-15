@@ -1,0 +1,71 @@
+# =========================
+#  VARIABLES DE ENTORNO
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+#  DEPENDENCIAS (COMPOSER)
+# =========================
+/vendor/
+composer.lock
+
+#  NOTA:
+# Si estás desarrollando en equipo, NO ignores composer.lock
+
+# =========================
+#  LOGS Y ARCHIVOS TEMPORALES
+# =========================
+*.log
+*.cache
+*.tmp
+*.bak
+
+# =========================
+#  CACHE / STORAGE
+# =========================
+/storage/
+/cache/
+/tmp/
+
+# =========================
+#  XAMPP / SISTEMA
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+#  TEST / COVERAGE
+# =========================
+/coverage/
+/.phpunit.result.cache
+
+# =========================
+#  IDEs
+# =========================
+
+# VS Code
+.vscode/
+
+# PHPStorm
+.idea/
+
+# =========================
+#  CONFIG LOCAL (IMPORTANTE)
+# =========================
+config.local.php
+
+# =========================
+#  KEYS / CERTS
+# =========================
+*.pem
+*.key
+*.crt
+
+# =========================
+#  ARCHIVOS GENERADOS
+# =========================
+*.zip
+*.tar
+*.gz
