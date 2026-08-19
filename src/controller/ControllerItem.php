@@ -164,4 +164,27 @@ class ControllerItem
             ], 500);
         }
     }
+    public function insertcsv(): void{
+        try{
+            if(!isset($_FILES['archivo'])){
+                ResponseHelper::error(
+                    "No se recibio ningún archivo",
+                    400
+                );
+                return;
+            }
+            $archivo = $_FILES['archivo'];
+            $resultado = $this->service->insertCsv($archivo);
+
+            ResponseHelper::success(
+                $resultado,
+                "CSV importado correctamente"
+            );
+        }catch (Exception $e){
+            ResponseHelper::error(
+                $e->getMessage(),
+                500
+            );
+        }
+    }
 }

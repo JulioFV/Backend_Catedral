@@ -21,4 +21,10 @@ class RepoMaterial{
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getIdPorNombre($nombre): ?string{
+        $stmt = $this->db->getConnection()->prepare("SELECT id_material FROM material WHERE nombre = :nombre");
+        $stmt->execute([':nombre' => $nombre]);
+        $resultado = $stmt->fetchColumn();
+        return $resultado === false ? null : $resultado;    
+    }
 }

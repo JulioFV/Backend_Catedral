@@ -2,17 +2,30 @@
 namespace src\service;
 
 use src\repository\RepoItem;
+use src\repository\RepoLugar;
+use src\repository\RepoMaterial;
+use src\repository\RepoEstado;
+use src\repository\RepoUso;
 use src\model\Item;
+use src\config\Database;
 use Exception;
 
 class ServiceItem
 {
     private $repo;
     private $item;
+    private $repoLugar;
+    private $repoMaterial;
+    private $repoEstado;
+    private $repoUso;
 
-    public function __construct()
+    public function __construct(RepoItem $repo, RepoLugar $repoLugar, RepoMaterial $repoMaterial, RepoEstado $repoEstado, RepoUso $repoUso)
     {
-        $this->repo = new RepoItem();
+        $this->repo =  $repo;
+        $this->repoLugar =  $repoLugar;
+        $this->repoMaterial = $repoMaterial;
+        $this->repoEstado = $repoEstado;
+        $this->repoUso = $repoUso;
     }
 
     public function createItem(array $data): bool
@@ -105,5 +118,121 @@ class ServiceItem
     }
     public function readItemByLocation($id): array{
         return $this->repo->readItemByLocation($id);
+    }
+    public function insertCsv(array $archivo): array{
+        if ($archivo['error'] !== UPLOAD_ERR_OK) {
+            throw new Exception("Error al subir el archivo");
+        }
+
+        $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
+        if ($extension !== 'csv') {
+            throw new Exception("El archivo debe ser CSV");
+        }
+
+        $handle = fopen($archivo['tmp_name'], 'r');
+        if ($handle === false) {
+            throw new Exception("No se pudo abrir el archivo");
+        }
+
+        $insertados = 0;
+        $errores = [];
+        $numeroFila = 1; // fila 1 = encabezado
+
+        fgetcsv($handle); // descartamos encabezado
+
+        while (($fila = fgetcsv($handle)) !== false) {
+            $numeroFila++;
+
+            try {
+                if (count($fila) < 10) {
+                    throw new Exception("La fila no tiene todas las columnas esperadas");
+                }
+
+                $datos = [
+                    'codigo'        => trim($fila[0]),
+                    'nombre'        => trim($fila[1]),
+                    'descripcion'   => trim($fila[2]),
+                    'cantidad'      => $fila[3],
+                    'material'      => trim($fila[4]),
+                    'estado'        => trim($fila[5]),
+                    'lugar'         => trim($fila[6]),
+                    'uso'           => trim($fila[7]),
+                    'activo'        => $fila[8],
+                    'observaciones' => $fila[9],
+                ];
+
+                if (empty($datos['codigo'])) {
+                    throw new Exception("El código es obligatorio");
+                }
+                if (empty($datos['nombre'])) {
+                    throw new Exception("El nombre es obligatorio");
+                }
+                if (empty($datos['lugar'])) {
+                    throw new Exception("El lugar es obligatorio");
+                }
+
+                // Lugar: nombre -> id -> código
+                $idLugar = $this->repoLugar->getIdPorNombre($datos['lugar']);
+                if ($idLugar === null) {
+                    throw new Exception("El lugar '{$datos['lugar']}' no existe");
+                }
+                $codigoLugar = $this->repoLugar->getCodigoLugar($idLugar);
+                if ($codigoLugar === null) {
+                    throw new Exception("No se encontró el código para el lugar '{$datos['lugar']}'");
+                }
+
+                $idMaterial = $this->repoMaterial->getIdPorNombre($datos['material']);
+                if ($idMaterial === null) {
+                    throw new Exception("El material '{$datos['material']}' no existe");
+                }
+
+                $idEstado = $this->repoEstado->getIdPorNombre($datos['estado']);
+                if ($idEstado === null) {
+                    throw new Exception("El estado '{$datos['estado']}' no existe");
+                }
+
+                $idUso = $this->repoUso->getIdPorNombre($datos['uso']);
+                if ($idUso === null) {
+                    throw new Exception("El uso '{$datos['uso']}' no existe");
+                }
+
+                $codigoFinal = $codigoLugar . $datos['codigo'];
+                $item = [
+                    'codigo'        => $codigoFinal,
+                    'nombre'        => $datos['nombre'],
+                    'descripcion'   => $datos['descripcion'],
+                    'cantidad'      => $datos['cantidad'],
+                    'id_material'   => $idMaterial,
+                    'id_estado'     => $idEstado,
+                    'id_lugar'      => $idLugar,
+                    'id_uso'        => $idUso,
+                    'activo'        => $datos['activo'],
+                    'observaciones' => $datos['observaciones'],
+                ];
+
+                Database::beginTransaction();
+                try {
+                    $this->repo->createItemCSV($item);
+                    Database::commit();
+                } catch (\Throwable $e) {
+                    Database::rollBack();
+                    throw $e;
+                }
+
+                $insertados++;
+            } catch (Exception $e) {
+                $errores[] = [
+                    'fila'  => $numeroFila,
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        fclose($handle);
+
+        return [
+            'insertados' => $insertados,
+            'errores'    => $errores,
+        ];
     }
 }

@@ -28,6 +28,20 @@ class RepoLugar{
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getCodigoLugar($id_lugar): ?string {
+        $stmt = $this->db->prepare("SELECT codigo from lugar WHERE id_lugar = :id_lugar");
+        $stmt->execute([
+            ':id_lugar' => $id_lugar
+        ]);
+        $resultado = $stmt->fetchColumn();
+        return $resultado === false ? null : $resultado;
+    }
+    public function getIdPorNombre($nombre): ?string{
+        $stmt = $this->db->prepare("SELECT id_lugar FROM lugar WHERE nombre = :nombre");
+        $stmt->execute([':nombre' => $nombre]);
+        $resultado = $stmt->fetchColumn();
+        return $resultado === false ? null : $resultado;
+    }
 
     public function updateLugar(Lugar $lugar){
         $stmt = $this->db->prepare("UPDATE lugar SET nombre = :nombre, referencia = :referencia,

@@ -60,4 +60,10 @@ class RepoUso{
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getIdPorNombre($nombre): ?string{
+        $stmt = $this->db->prepare("SELECT id_uso FROM uso WHERE nombre = :nombre");
+        $stmt->execute([':nombre' => $nombre]);
+        $resultado = $stmt->fetchColumn();
+        return $resultado === false ? null : $resultado;
+    }
 }

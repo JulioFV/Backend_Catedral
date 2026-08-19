@@ -14,8 +14,7 @@ class Database
 {
     private static $connection = null;
 
-    public static function getConnection()
-    {
+    public static function getConnection(){
         if (self::$connection === null) {
             $host = $_ENV['DB_HOST'];
             $port = $_ENV['DB_PORT'];
@@ -35,6 +34,15 @@ class Database
             }
         }
         return self::$connection;
+    }
+    public static function beginTransaction(): bool{
+        return self::getConnection()->beginTransaction();
+    }
+    public static function commit(): bool{
+        return self::getConnection()->commit();
+    }
+    public static function rollBack(): bool{
+        return self::getConnection()->rollBack();
     }
 }
 ?>

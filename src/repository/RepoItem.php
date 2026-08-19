@@ -166,5 +166,24 @@ class RepoItem{
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function createItemCSV(array $item): bool {
+        $stmt = $this->db->prepare("INSERT INTO item (codigo, nombre, descripcion,
+        cantidad, id_material, id_estado, id_lugar, id_uso, activo,observaciones) 
+        VALUES (:codigo, :nombre, :descripcion, :cantidad, 
+        :id_material, :id_estado, :id_lugar, :id_uso, :activo, :observaciones)");
+
+        return $stmt->execute([
+            ':codigo'            => $item['codigo'],
+            ':nombre'            => $item['nombre'],
+            ':descripcion'       => $item['descripcion'],
+            ':cantidad'          => $item['cantidad'],
+            ':id_material'       => (int)$item['id_material'],
+            ':id_estado'         => $item['id_estado'],
+            ':id_lugar'          => $item['id_lugar'],
+            ':id_uso'            => $item['id_uso'],
+            ':activo'            =>$item['activo'],
+            ':observaciones'     =>$item['observaciones']
+        ]);
+    }
     
 }

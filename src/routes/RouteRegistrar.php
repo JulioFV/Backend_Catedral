@@ -32,6 +32,7 @@ class RouteRegistrar
         $router->addRoute('PUT', '/item/{id}', ControllerItem::class, 'updateItem');
         $router->addRoute('PUT', '/items/{id}', ControllerItem::class,'inhabilitarItem');
         $router->addRoute('GET', '/item/{id}', ControllerItem::class, 'readItemByLocation');
+        $router->addRoute('POST', '/itemcsv', ControllerItem::class, 'insertcsv');
 
 
 
