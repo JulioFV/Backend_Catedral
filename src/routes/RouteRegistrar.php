@@ -11,17 +11,29 @@ use src\controller\ControllerUsuario;
 use src\controller\ControllerGarantia;
 use src\controller\ControllerEstado;
 use src\controller\ControllerGeneral;
+use src\controller\ControllerPreguntas;
 
 class RouteRegistrar
 {
     public static function register(Router $router): void
     {
+        //Preguntas de seguridad
+        $router->addRoute('GET', '/preguntas',ControllerPreguntas::class,'leer');
+        $router->addRoute('POST', '/preguntasvalidar',ControllerPreguntas::class,'validar');
+        $router->addRoute('POST', '/registraRespuesta',ControllerPreguntas::class,'insertarRespuesta');
+        $router->addRoute('GET', '/validarusuario/{id}',ControllerPreguntas::class,'validarUsuario');
+        $router->addRoute('GET', '/getpregunta/{id}',ControllerPreguntas::class,'obtenerPreguntaDelUsuario');
+
+
+
+
         // Usuarios
         $router->addRoute('POST', '/login',ControllerUsuario::class,'login');
         $router->addRoute('PUT', '/users/{id}', ControllerUsuario::class, 'updateUser');
         $router->addRoute('POST', '/updatepass', ControllerUsuario::class, 'updatePassword');
         $router->addRoute('POST', '/createuser', ControllerUsuario::class, 'createUser');
         $router->addRoute('GET', '/users', ControllerUsuario::class, 'readUsers');
+        $router->addRoute('POST', '/getIdByEmail', ControllerUsuario::class, 'getIdByEmail');
 
         
 

@@ -50,7 +50,6 @@ class ServiceUsuario
 
         return $user;
     }
-
     public function getUserById(int $id): ?array{
         return $this->repoUsuario->getUserById($id);
     }
@@ -92,5 +91,8 @@ class ServiceUsuario
     }
     public function readUsers(): ?array{
         return $this->repoUsuario->getUsers();
+    }
+    public function obtenerID(string $email): ?string{
+        return $this->repoUsuario->getID($email);
     }
 }

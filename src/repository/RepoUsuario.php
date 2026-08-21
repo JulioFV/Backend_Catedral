@@ -126,4 +126,10 @@ class RepoUsuario
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getID(string $email): ?string{
+        $stmt = $this->db->prepare("SELECT id_usuario from usuario WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+        $resultado = $stmt->fetchColumn();
+        return $resultado === false ? null : $resultado;
+    }
 }

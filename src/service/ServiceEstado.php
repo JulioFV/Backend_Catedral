@@ -15,8 +15,7 @@ class ServiceEstado
         $this->repoEstado = $repoEstado;
     }
 
-    public function createEstado(array $data)
-    {
+    public function createEstado(array $data){
         try {
             if (!isset($data['nombre']) || trim($data['nombre']) === '') {
                 ResponseHelper::json([

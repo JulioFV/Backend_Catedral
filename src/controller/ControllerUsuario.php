@@ -140,12 +140,17 @@ class ControllerUsuario
             $id = $data['id_usuario'] ?? 0;
             $password = $data['password'] ?? '';
 
-            $this->serviceUsuario->updatePassword($id, $password);
-
-            ResponseHelper::json([
+            if($this->serviceUsuario->updatePassword($id, $password)){
+                ResponseHelper::json([
                 'success' => true,
                 'message' => 'Contraseña actualizada correctamente'
             ]);
+            }else{
+                ResponseHelper::json([
+                'success' => false,
+                'message' => 'No se pudo atualizar la contraseña'
+            ]);
+            }
 
         } catch (\InvalidArgumentException $e) {
             ResponseHelper::json([
@@ -188,6 +193,44 @@ class ControllerUsuario
             ResponseHelper::json([
                 'status' => 'error',
                 'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function getIdByEmail(): void{
+        try {
+            $data = json_decode(file_get_contents("php://input"), true);
+            if($data === null){
+                ResponseHelper::json([
+                    'success' =>false,
+                    'message' =>'El body no puede ir vacío'
+                ]);
+
+            }
+            if($data['correo'] === null){
+                ResponseHelper::json([
+                    'success' =>false,
+                    'message' =>'El correo es necesario'
+                ]);
+            }
+            $correo = $data['correo'];
+
+            $ID = $this->serviceUsuario->obtenerID($correo);
+            if($ID === null){
+                ResponseHelper::json([
+                'success' => false,
+                'data' => "El usuario no existe"
+            ]);
+            }
+            ResponseHelper::json([
+                'success' => true,
+                'data' => $ID
+            ]);
+            
+
+        } catch (\Exception $e) {
+            ResponseHelper::json([
+                'success' => false,
+                'message' => 'Error interno del servidor'
             ], 500);
         }
     }
