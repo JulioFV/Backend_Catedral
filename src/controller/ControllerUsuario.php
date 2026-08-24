@@ -218,7 +218,7 @@ class ControllerUsuario
             if($ID === null){
                 ResponseHelper::json([
                 'success' => false,
-                'data' => "El usuario no existe"
+                'message' => "El usuario no existe"
             ]);
             }
             ResponseHelper::json([
